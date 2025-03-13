@@ -11,6 +11,8 @@ public class UserDto {
     @NotBlank
     private String username;
 
+    private String email;
+
     @NotBlank
     private String phoneNumber;
 
