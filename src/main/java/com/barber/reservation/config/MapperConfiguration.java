@@ -9,6 +9,7 @@ public class MapperConfiguration {
 
     @Bean
     public UserMapper userMapper(){
+
         return UserMapper.INSTANCE;
     }
 }

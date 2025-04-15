@@ -1,20 +1,18 @@
 package com.barber.reservation.mapper;
 
-
 import com.barber.reservation.domain.User;
-import com.barber.reservation.dto.UserDto;
+import com.barber.reservation.dto.request.UserRequestDTO;
+import com.barber.reservation.dto.response.UserResponseDTO;
 import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    User toUser(UserDto userDto);
+    UserResponseDTO toUserResponseDTO(User user);
 
-    UserDto toUserDto(User user);
-
+    User toEntity(UserRequestDTO dto);
 
 }
