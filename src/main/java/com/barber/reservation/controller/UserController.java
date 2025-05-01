@@ -1,5 +1,6 @@
 package com.barber.reservation.controller;
 
+import com.barber.reservation.dto.request.LoginRequestDTO;
 import com.barber.reservation.dto.request.UserRequestDTO;
 import com.barber.reservation.dto.response.UserResponseDTO;
 import com.barber.reservation.service.UserService;
@@ -22,18 +23,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public UserResponseDTO login(@RequestParam String phoneNumber, @RequestParam String password) {
-        return userService.loginWithPhoneNumber(phoneNumber, password);
-    }
-
-    @GetMapping("/{id}")
-    public UserResponseDTO getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
-    }
-
-    @GetMapping
-    public List<UserResponseDTO> getAllUsers() {
-        return userService.getAllUsers();
+    public UserResponseDTO login(@Valid @RequestBody LoginRequestDTO dto) {
+        return userService.loginWithPhoneNumber(dto);
     }
 
     @PutMapping("/{id}")
@@ -47,12 +38,22 @@ public class UserController {
         userService.deleteUser(id);
     }
 
-    // admin panel controller
-    @GetMapping("/search")
+    @GetMapping
+    public List<UserResponseDTO> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    //todo admin panel controller
+    @GetMapping("/by-contact")
     public UserResponseDTO getUserByEmailOrPhone(
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String phone
     ) {
         return userService.getUserByEmailOrPhone(email, phone);
+    }
+
+    @GetMapping("/{id}")
+    public UserResponseDTO getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
 }

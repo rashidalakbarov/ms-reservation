@@ -9,7 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+    @Index(name = "idx_user_email", columnList = "email"),
+    @Index(name = "idx_user_phone", columnList = "phoneNumber")
+})
 public class User {
 
     @Id
@@ -18,17 +21,16 @@ public class User {
 
     private String username;
 
+    private String profileImageUrl;
+
     @Email
     @Column(unique = true)
     private String email;
 
     @Column(unique = true, nullable = false)
-    @Pattern(regexp = "^(\\+994|0)(50|51|55|60|70|77|99)\\d{7}$")
+    @Pattern(regexp = "^(\\+994|0)(50|51|55|70|77|99)[0-9]{7}$")
     private String phoneNumber;
 
     @Column(nullable = false)
     private String password;
-
-    @Column(nullable = false)
-    private boolean isBarber = false;
 }

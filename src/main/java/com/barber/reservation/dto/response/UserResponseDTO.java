@@ -7,6 +7,7 @@ public class UserResponseDTO {
 
     private Long id;
     private String username;
+    private String profileImageUrl;
     private String email;
     private String phoneNumber;
     private boolean isBarber;
