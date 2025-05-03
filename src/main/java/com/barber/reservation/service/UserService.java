@@ -133,17 +133,6 @@ public class UserService {
                 .toList();
     }
 
-    /**
-     * Get all users with pagination support for better performance with large datasets
-     *
-     * @param pageable Pagination information
-     * @return Page of user response DTOs
-     */
-    public Page<UserResponseDTO> getAllUsersPaged(Pageable pageable) {
-        return userRepository.findAll(pageable)
-                .map(userMapper::toUserResponseDTO);
-    }
-
     @Cacheable(key = "#id")
     public UserResponseDTO getUserById(Long id) {
         return userRepository.findById(id)
