@@ -10,5 +10,4 @@ public class UserResponseDTO {
     private String profileImageUrl;
     private String email;
     private String phoneNumber;
-    private boolean isBarber;
 }

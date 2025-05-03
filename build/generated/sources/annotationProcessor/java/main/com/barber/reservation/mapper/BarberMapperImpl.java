@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-05-01T16:38:05+0400",
+    date = "2025-05-03T21:07:03+0400",
     comments = "version: 1.5.3.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.12.1.jar, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -25,13 +25,12 @@ public class BarberMapperImpl implements BarberMapper {
         BarberResponseDTO barberResponseDTO = new BarberResponseDTO();
 
         barberResponseDTO.setId( barber.getId() );
+        barberResponseDTO.setName( barber.getName() );
+        barberResponseDTO.setSurname( barber.getSurname() );
         barberResponseDTO.setPhoneNumber( barber.getPhoneNumber() );
         barberResponseDTO.setProfileImageUrl( barber.getProfileImageUrl() );
         barberResponseDTO.setDescription( barber.getDescription() );
         barberResponseDTO.setIsAvailable( barber.getIsAvailable() );
-
-        barberResponseDTO.setName( barber.getFullName() != null && barber.getFullName().contains(" ") ? barber.getFullName().split(" ", 2)[0] : barber.getFullName() );
-        barberResponseDTO.setSurname( barber.getFullName() != null && barber.getFullName().contains(" ") ? barber.getFullName().split(" ", 2)[1] : "" );
 
         return barberResponseDTO;
     }
@@ -44,11 +43,11 @@ public class BarberMapperImpl implements BarberMapper {
 
         Barber barber = new Barber();
 
+        barber.setName( barberRequestDTO.getName() );
+        barber.setSurname( barberRequestDTO.getSurname() );
         barber.setProfileImageUrl( barberRequestDTO.getProfileImageUrl() );
         barber.setPhoneNumber( barberRequestDTO.getPhoneNumber() );
         barber.setDescription( barberRequestDTO.getDescription() );
-
-        barber.setFullName( barberRequestDTO.getName() + ' ' + barberRequestDTO.getSurname() );
 
         return barber;
     }
@@ -59,11 +58,11 @@ public class BarberMapperImpl implements BarberMapper {
             return;
         }
 
+        barber.setName( barberRequestDTO.getName() );
+        barber.setSurname( barberRequestDTO.getSurname() );
         barber.setProfileImageUrl( barberRequestDTO.getProfileImageUrl() );
         barber.setPhoneNumber( barberRequestDTO.getPhoneNumber() );
         barber.setDescription( barberRequestDTO.getDescription() );
-
-        barber.setFullName( barberRequestDTO.getName() + ' ' + barberRequestDTO.getSurname() );
     }
 
     @Override

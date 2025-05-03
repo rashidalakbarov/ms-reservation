@@ -1,6 +1,5 @@
 package com.barber.reservation.mapper;
 
-import com.barber.reservation.domain.Barber;
 import com.barber.reservation.domain.Reservation;
 import com.barber.reservation.domain.User;
 import com.barber.reservation.dto.request.ReservationRequestDTO;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-05-01T16:38:05+0400",
+    date = "2025-05-03T21:07:03+0400",
     comments = "version: 1.5.3.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.12.1.jar, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -42,8 +41,6 @@ public class ReservationMapperImpl implements ReservationMapper {
 
         reservationResponseDTO.setUserId( reservationUserId( reservation ) );
         reservationResponseDTO.setUsername( reservationUserUsername( reservation ) );
-        reservationResponseDTO.setBarberId( reservationBarberId( reservation ) );
-        reservationResponseDTO.setBarberName( reservationBarberFullName( reservation ) );
         reservationResponseDTO.setId( reservation.getId() );
         reservationResponseDTO.setStartTime( reservation.getStartTime() );
         reservationResponseDTO.setEndTime( reservation.getEndTime() );
@@ -81,35 +78,5 @@ public class ReservationMapperImpl implements ReservationMapper {
             return null;
         }
         return username;
-    }
-
-    private Long reservationBarberId(Reservation reservation) {
-        if ( reservation == null ) {
-            return null;
-        }
-        Barber barber = reservation.getBarber();
-        if ( barber == null ) {
-            return null;
-        }
-        Long id = barber.getId();
-        if ( id == null ) {
-            return null;
-        }
-        return id;
-    }
-
-    private String reservationBarberFullName(Reservation reservation) {
-        if ( reservation == null ) {
-            return null;
-        }
-        Barber barber = reservation.getBarber();
-        if ( barber == null ) {
-            return null;
-        }
-        String fullName = barber.getFullName();
-        if ( fullName == null ) {
-            return null;
-        }
-        return fullName;
     }
 }

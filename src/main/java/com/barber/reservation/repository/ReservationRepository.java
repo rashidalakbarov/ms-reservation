@@ -12,6 +12,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     /**
      * More efficient query with join fetch to avoid the N+1 problem
      */
-    @Query("SELECT r FROM Reservation r JOIN FETCH r.barber b JOIN FETCH r.user WHERE b.fullName = :barberFullName")
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.barber b JOIN FETCH r.user " +
+       "WHERE CONCAT(b.name, ' ', b.surname) = :barberFullName")
     List<Reservation> findByBarberNameWithJoinFetch(@Param("barberFullName") String barberFullName);
 }

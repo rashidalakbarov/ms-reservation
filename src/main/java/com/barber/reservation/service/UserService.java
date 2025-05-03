@@ -17,7 +17,6 @@ import com.barber.reservation.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,44 +35,43 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    
+
     /**
      * Helper method to validate user email and phone number uniqueness
-     * @param email Email to validate
-     * @param phoneNumber Phone number to validate
+     *
+     * @param email        Email to validate
+     * @param phoneNumber  Phone number to validate
      * @param existingUser Existing user (for updates)
      */
     private void validateUserUniqueness(String email, String phoneNumber, User existingUser) {
-        if (email != null && (existingUser == null || !email.equals(existingUser.getEmail())) 
+        if (email != null && (existingUser == null || !email.equals(existingUser.getEmail()))
                 && userRepository.existsByEmail(email)) {
             throw new DuplicateResourceException(EMAIL_ALREADY_IN_USE.getMessage());
         }
-        
-        if (phoneNumber != null && (existingUser == null || !phoneNumber.equals(existingUser.getPhoneNumber())) 
+
+        if (phoneNumber != null && (existingUser == null || !phoneNumber.equals(existingUser.getPhoneNumber()))
                 && userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new DuplicateResourceException(PHONE_NUMBER_ALREADY_IN_USE.getMessage());
         }
     }
 
-    @Transactional
     public UserResponseDTO createUser(UserRequestDTO dto) {
         // Use helper method for validation
         validateUserUniqueness(dto.getEmail(), dto.getPhoneNumber(), null);
-    
+
         User user = userMapper.toEntity(dto);
         // Encode password for security
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        
+
         User savedUser = userRepository.save(user);
         log.info("User created: ID={}, Phone={}", savedUser.getId(), savedUser.getPhoneNumber());
         return userMapper.toUserResponseDTO(savedUser);
     }
 
-    @Transactional(readOnly = true)
     public UserResponseDTO loginWithPhoneNumber(LoginRequestDTO dto) {
         User user = userRepository.findByPhoneNumber(dto.getPhoneNumber())
                 .orElseThrow(() -> new ResourceNotFoundException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage()));
-    
+
         // Proper password verification using password encoder
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new ResourceNotFoundException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage());
@@ -83,7 +81,6 @@ public class UserService {
         return userMapper.toUserResponseDTO(user);
     }
 
-    @Transactional
     @CacheEvict(key = "#id")
     public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
         User user = userRepository.findById(id)
@@ -91,29 +88,29 @@ public class UserService {
 
         // Use helper method for validation
         validateUserUniqueness(dto.getEmail(), dto.getPhoneNumber(), user);
-    
+
         boolean isModified = false;
-        
+
         if (dto.getUsername() != null && !dto.getUsername().equals(user.getUsername())) {
             user.setUsername(dto.getUsername());
             isModified = true;
         }
-        
+
         if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
             user.setEmail(dto.getEmail());
             isModified = true;
         }
-        
+
         if (dto.getPhoneNumber() != null && !dto.getPhoneNumber().equals(user.getPhoneNumber())) {
             user.setPhoneNumber(dto.getPhoneNumber());
             isModified = true;
         }
-        
+
         if (dto.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
             isModified = true;
         }
-        
+
         // Only save if something changed
         User updated = isModified ? userRepository.save(user) : user;
         log.info("User updated: ID={}, Email={}", updated.getId(), updated.getEmail());
@@ -121,7 +118,6 @@ public class UserService {
         return userMapper.toUserResponseDTO(updated);
     }
 
-    @Transactional
     @CacheEvict(key = "#id")
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
@@ -131,33 +127,30 @@ public class UserService {
         log.info("User deleted: ID={}, phoneNumber={}", user.getId(), user.getPhoneNumber());
     }
 
-    @Transactional(readOnly = true)
     public List<UserResponseDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponseDTO)
                 .toList();
     }
-    
+
     /**
      * Get all users with pagination support for better performance with large datasets
+     *
      * @param pageable Pagination information
      * @return Page of user response DTOs
      */
-    @Transactional(readOnly = true)
     public Page<UserResponseDTO> getAllUsersPaged(Pageable pageable) {
         return userRepository.findAll(pageable)
                 .map(userMapper::toUserResponseDTO);
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(key = "#id")
     public UserResponseDTO getUserById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::toUserResponseDTO)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE.getMessage() + id));
     }
-    
-    @Transactional(readOnly = true)
+
     public UserResponseDTO getUserByEmailOrPhone(String email, String phone) {
         return userRepository.findByEmailOrPhoneNumber(email, phone)
                 .map(userMapper::toUserResponseDTO)

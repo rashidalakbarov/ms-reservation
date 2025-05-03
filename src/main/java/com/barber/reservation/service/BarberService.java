@@ -8,9 +8,10 @@ import com.barber.reservation.mapper.BarberMapper;
 import com.barber.reservation.repository.BarberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.barber.reservation.constant.MessageConstant.BARBER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -19,33 +20,28 @@ public class BarberService {
     private final BarberRepository barberRepository;
     private final BarberMapper barberMapper;
 
-    @Transactional(readOnly = true)
     public List<BarberResponseDTO> getAllBarbers() {
         return barberMapper.toBarberResponseDTOList(barberRepository.findAll());
     }
 
-    @Transactional(readOnly = true)
     public BarberResponseDTO getBarberById(Long id) {
         return barberMapper.toBarberResponseDTO(barberRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + id)));
+                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage() + id)));
 
     }
 
-    @Transactional
     public BarberResponseDTO addBarber(BarberRequestDTO dto) {
         Barber entity = barberMapper.toBarber(dto);
         return barberMapper.toBarberResponseDTO(barberRepository.save(entity));
     }
 
-    @Transactional
     public BarberResponseDTO updateBarber(Long id, BarberRequestDTO dto) {
         Barber barber = barberRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Barber not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage() + id));
         barberMapper.updateBarberFromDTO(dto, barber);
         return barberMapper.toBarberResponseDTO(barberRepository.save(barber));
     }
 
-    @Transactional
     public void deleteBarber(Long id) {
         barberRepository.deleteById(id);
     }

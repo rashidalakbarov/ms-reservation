@@ -16,7 +16,8 @@ public class Barber {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String fullName;
+    private String name;
+    private String surname;
     private String profileImageUrl;
     private String phoneNumber;
     private String description;
