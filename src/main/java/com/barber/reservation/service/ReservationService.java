@@ -54,7 +54,7 @@ public class ReservationService {
     }
 
     public List<ReservationResponseDTO> getReservationsByBarberName(String barberName) {
-        return reservationRepository.findByBarberNameWithJoinFetch(barberName)
+        return reservationRepository.findReservationsByBarberFullName(barberName)
                 .stream()
                 .map(reservationMapper::toResponseDTO)
                 .toList();
@@ -71,6 +71,25 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponseDTO update(UpdateReservationRequestDTO dto) {
-        return null;
+        Reservation existing = reservationRepository.findById(dto.getReservationId())
+                .orElseThrow(() -> new ResourceNotFoundException(RESERVATION_NOT_FOUND.getMessage() + dto.getReservationId()));
+
+        // Update fields
+        existing.setStartTime(dto.getStartTime());
+        existing.setEndTime(dto.getEndTime());
+        existing.setServiceName(dto.getServiceName());
+        existing.setPrice(dto.getPrice());
+
+        // Optionally check user/barber existence if needed
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND.getMessage() + dto.getUserId()));
+        existing.setUser(user);
+
+        Barber barber = barberRepository.findById(dto.getBarberId())
+                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage() + dto.getBarberId()));
+        existing.setBarber(barber);
+
+        Reservation updated = reservationRepository.save(existing);
+        return reservationMapper.toResponseDTO(updated);
     }
 }

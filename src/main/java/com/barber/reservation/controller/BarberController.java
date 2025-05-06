@@ -3,6 +3,7 @@ package com.barber.reservation.controller;
 import com.barber.reservation.dto.request.BarberRequestDTO;
 import com.barber.reservation.dto.response.BarberResponseDTO;
 import com.barber.reservation.service.BarberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,13 +34,13 @@ public class BarberController {
     }
 
     @PostMapping
-    public BarberResponseDTO addBarber(@RequestBody BarberRequestDTO barberRequestDTO) {
+    public BarberResponseDTO addBarber(@Valid @RequestBody BarberRequestDTO barberRequestDTO) {
         return barberService.addBarber(barberRequestDTO);
     }
 
     @PutMapping("/{id}")
     public BarberResponseDTO updateBarber(@PathVariable Long id,
-                                          @RequestBody BarberRequestDTO barberRequestDTO) {
+                                          @Valid @RequestBody BarberRequestDTO barberRequestDTO) {
         return barberService.updateBarber(id, barberRequestDTO);
     }
 
