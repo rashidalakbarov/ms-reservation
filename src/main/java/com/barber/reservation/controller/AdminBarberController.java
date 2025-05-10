@@ -18,8 +18,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("admin/barber")
-public class BarberController {
+@RequestMapping("/api/admin/barbers")
+public class AdminBarberController {
 
     private final BarberService barberService;
 
