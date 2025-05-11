@@ -5,12 +5,8 @@ import com.barber.reservation.dto.request.LoginRequestDTO;
 import com.barber.reservation.dto.request.UserRequestDTO;
 import com.barber.reservation.dto.response.UserResponseDTO;
 import com.barber.reservation.exception.DuplicateResourceException;
-import com.barber.reservation.exception.ResourceNotFoundException;
+import com.barber.reservation.exception.BadCredentialsException;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.barber.reservation.mapper.UserMapper;
 import com.barber.reservation.repository.UserRepository;
@@ -68,23 +64,22 @@ public class UserService {
         return userMapper.toUserResponseDTO(savedUser);
     }
 
-    public UserResponseDTO loginWithPhoneNumber(LoginRequestDTO dto) {
+    public UserResponseDTO loginUser(LoginRequestDTO dto) {
         User user = userRepository.findByPhoneNumber(dto.getPhoneNumber())
-                .orElseThrow(() -> new ResourceNotFoundException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage()));
+                .orElseThrow(() -> new BadCredentialsException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage()));
 
         // Proper password verification using password encoder
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new ResourceNotFoundException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage());
+            throw new BadCredentialsException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage());
         }
 
         log.info("User logged in: ID={}, Phone={}", user.getId(), dto.getPhoneNumber());
         return userMapper.toUserResponseDTO(user);
     }
 
-    @CacheEvict(key = "#id")
     public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
+                .orElseThrow(() -> new BadCredentialsException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
 
         // Use helper method for validation
         validateUserUniqueness(dto.getEmail(), dto.getPhoneNumber(), user);
@@ -118,10 +113,9 @@ public class UserService {
         return userMapper.toUserResponseDTO(updated);
     }
 
-    @CacheEvict(key = "#id")
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
+                .orElseThrow(() -> new BadCredentialsException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
 
         userRepository.delete(user);
         log.info("User deleted: ID={}, phoneNumber={}", user.getId(), user.getPhoneNumber());
@@ -133,16 +127,15 @@ public class UserService {
                 .toList();
     }
 
-    @Cacheable(key = "#id")
     public UserResponseDTO getUserById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::toUserResponseDTO)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE.getMessage() + id));
+                .orElseThrow(() -> new BadCredentialsException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE.getMessage() + id));
     }
-
-    public UserResponseDTO getUserByEmailOrPhone(String email, String phone) {
-        return userRepository.findByEmailOrPhoneNumber(email, phone)
-                .map(userMapper::toUserResponseDTO)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE.getMessage()));
-    }
+//
+//    public UserResponseDTO getUserByEmailOrPhone(String email, String phone) {
+//        return userRepository.findByEmailOrPhoneNumber(email, phone)
+//                .map(userMapper::toUserResponseDTO)
+//                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE.getMessage()));
+//    }
 }

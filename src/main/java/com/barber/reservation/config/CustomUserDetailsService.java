@@ -3,6 +3,7 @@ package com.barber.reservation.config;
 import com.barber.reservation.domain.User;
 import com.barber.reservation.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static com.barber.reservation.constant.MessageConstant.USER_NOT_FOUND_WITH_EMAIL_OR_PHONE;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String phoneOrEmail) throws UsernameNotFoundException {
         User user = userRepository.findByEmailOrPhoneNumber(phoneOrEmail, phoneOrEmail)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email or phone: " + phoneOrEmail));
+                .orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE + phoneOrEmail));
 
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         // Add basic :user role

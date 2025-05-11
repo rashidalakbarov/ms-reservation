@@ -14,7 +14,6 @@ public interface UserMapper {
 
     UserResponseDTO toUserResponseDTO(User user);
 
-
     User toEntity(UserRequestDTO dto);
 
 }

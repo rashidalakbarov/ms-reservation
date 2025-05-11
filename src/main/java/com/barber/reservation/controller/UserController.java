@@ -24,7 +24,7 @@ public class UserController {
 
     @PostMapping("/login")
     public UserResponseDTO login(@Valid @RequestBody LoginRequestDTO dto) {
-        return userService.loginWithPhoneNumber(dto);
+        return userService.loginUser(dto);
     }
 
     @PutMapping("/{id}")
@@ -43,17 +43,16 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    //todo admin panel controller
-    @GetMapping("/by-contact")
-    public UserResponseDTO getUserByEmailOrPhone(
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String phone
-    ) {
-        return userService.getUserByEmailOrPhone(email, phone);
-    }
-
     @GetMapping("/{id}")
     public UserResponseDTO getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
+
+//    @GetMapping("/by-contact")
+//    public UserResponseDTO getUserByEmailOrPhone(
+//            @RequestParam(required = false) String email,
+//            @RequestParam(required = false) String phone
+//    ) {
+//        return userService.getUserByEmailOrPhone(email, phone);
+//    }
 }
