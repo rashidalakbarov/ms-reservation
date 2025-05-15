@@ -19,8 +19,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "WHERE LOWER(CONCAT(b.name, ' ', b.surname)) = LOWER(:barberFullName)")
     List<Reservation> findReservationsByBarberFullName(@Param("barberFullName") String barberFullName);
 
-    boolean isOverlappingReservation(
-            Long barberId, LocalDateTime endTime, LocalDateTime startTime
-    );
+    @Query("SELECT COUNT(r) > 0 FROM Reservation r " +
+            "WHERE r.barber.id = :barberId " +
+            "AND (" +
+            "(:startTime < r.endTime AND :endTime > r.startTime)" +
+            ")")
+
+    boolean isOverlappingReservation(Long barberId,
+                                     LocalDateTime endTime,
+                                     LocalDateTime startTime);
 
 }

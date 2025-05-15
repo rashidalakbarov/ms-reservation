@@ -4,12 +4,13 @@ import com.barber.reservation.domain.Reservation;
 import com.barber.reservation.domain.User;
 import com.barber.reservation.dto.request.ReservationRequestDTO;
 import com.barber.reservation.dto.response.ReservationResponseDTO;
+import java.math.BigDecimal;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-05-15T14:23:47+0400",
+    date = "2025-05-15T16:18:48+0400",
     comments = "version: 1.5.3.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.12.1.jar, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -26,7 +27,7 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservation.setStartTime( dto.getStartTime() );
         reservation.setEndTime( dto.getEndTime() );
         reservation.setServiceName( dto.getServiceName() );
-        reservation.setPrice( dto.getPrice() );
+        reservation.setPrice( BigDecimal.valueOf( dto.getPrice() ) );
 
         return reservation;
     }
@@ -45,7 +46,9 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservationResponseDTO.setStartTime( reservation.getStartTime() );
         reservationResponseDTO.setEndTime( reservation.getEndTime() );
         reservationResponseDTO.setServiceName( reservation.getServiceName() );
-        reservationResponseDTO.setPrice( reservation.getPrice() );
+        if ( reservation.getPrice() != null ) {
+            reservationResponseDTO.setPrice( reservation.getPrice().doubleValue() );
+        }
 
         return reservationResponseDTO;
     }

@@ -1,8 +1,10 @@
 package com.barber.reservation.mapper;
 
 import com.barber.reservation.domain.Barber;
+import com.barber.reservation.domain.Reservation;
 import com.barber.reservation.dto.request.BarberRequestDTO;
 import com.barber.reservation.dto.response.BarberResponseDTO;
+import com.barber.reservation.dto.response.ReservationResponseDTO;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.processing.Generated;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-05-15T14:23:47+0400",
+    date = "2025-05-15T16:18:47+0400",
     comments = "version: 1.5.3.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.12.1.jar, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -31,6 +33,7 @@ public class BarberMapperImpl implements BarberMapper {
         barberResponseDTO.setProfileImageUrl( barber.getProfileImageUrl() );
         barberResponseDTO.setDescription( barber.getDescription() );
         barberResponseDTO.setIsAvailable( barber.getIsAvailable() );
+        barberResponseDTO.setReservations( reservationListToReservationResponseDTOList( barber.getReservations() ) );
 
         return barberResponseDTO;
     }
@@ -77,5 +80,36 @@ public class BarberMapperImpl implements BarberMapper {
         }
 
         return list;
+    }
+
+    protected ReservationResponseDTO reservationToReservationResponseDTO(Reservation reservation) {
+        if ( reservation == null ) {
+            return null;
+        }
+
+        ReservationResponseDTO reservationResponseDTO = new ReservationResponseDTO();
+
+        reservationResponseDTO.setId( reservation.getId() );
+        reservationResponseDTO.setStartTime( reservation.getStartTime() );
+        reservationResponseDTO.setEndTime( reservation.getEndTime() );
+        reservationResponseDTO.setServiceName( reservation.getServiceName() );
+        if ( reservation.getPrice() != null ) {
+            reservationResponseDTO.setPrice( reservation.getPrice().doubleValue() );
+        }
+
+        return reservationResponseDTO;
+    }
+
+    protected List<ReservationResponseDTO> reservationListToReservationResponseDTOList(List<Reservation> list) {
+        if ( list == null ) {
+            return null;
+        }
+
+        List<ReservationResponseDTO> list1 = new ArrayList<ReservationResponseDTO>( list.size() );
+        for ( Reservation reservation : list ) {
+            list1.add( reservationToReservationResponseDTO( reservation ) );
+        }
+
+        return list1;
     }
 }
