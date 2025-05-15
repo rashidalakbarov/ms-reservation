@@ -47,7 +47,7 @@ public class SecurityConfig {
                                 // Login olmuş istifadəçilər (ROLE_USER) bərbərlərin siyahısını görə bilər
                                 // Bu endpoint-i yaratmaq lazımdır (məs. BarberController altında)
                                 .requestMatchers(HttpMethod.GET, "/api/barbers/**")
-                                .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                                .hasAnyAuthority("ROLE_CUSTOMER", "ROLE_ADMIN")
 
                                 // Login olmuş istifadəçilər (ROLE_USER) öz profillərinə baxa/redaktə edə bilər
                                 // Bu endpoint-ləri yaratmaq lazımdır (məs. UserController altında, /api/users/me kimi)
