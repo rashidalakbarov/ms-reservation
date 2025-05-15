@@ -5,7 +5,7 @@ import com.barber.reservation.dto.request.LoginRequestDTO;
 import com.barber.reservation.dto.request.UserRequestDTO;
 import com.barber.reservation.dto.response.UserResponseDTO;
 import com.barber.reservation.exception.DuplicateResourceException;
-import com.barber.reservation.exception.BadCredentialsException;
+import com.barber.reservation.exception.ResourceNotFoundException;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.barber.reservation.mapper.UserMapper;
@@ -32,25 +32,6 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Helper method to validate user email and phone number uniqueness
-     *
-     * @param email        Email to validate
-     * @param phoneNumber  Phone number to validate
-     * @param existingUser Existing user (for updates)
-     */
-    private void validateUserUniqueness(String email, String phoneNumber, User existingUser) {
-        if (email != null && (existingUser == null || !email.equals(existingUser.getEmail()))
-                && userRepository.existsByEmail(email)) {
-            throw new DuplicateResourceException(EMAIL_ALREADY_IN_USE.getMessage());
-        }
-
-        if (phoneNumber != null && (existingUser == null || !phoneNumber.equals(existingUser.getPhoneNumber()))
-                && userRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new DuplicateResourceException(PHONE_NUMBER_ALREADY_IN_USE.getMessage());
-        }
-    }
-
     public UserResponseDTO createUser(UserRequestDTO dto) {
         // Use helper method for validation
         validateUserUniqueness(dto.getEmail(), dto.getPhoneNumber(), null);
@@ -66,11 +47,11 @@ public class UserService {
 
     public UserResponseDTO loginUser(LoginRequestDTO dto) {
         User user = userRepository.findByPhoneNumber(dto.getPhoneNumber())
-                .orElseThrow(() -> new BadCredentialsException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage()));
+                .orElseThrow(() -> new ResourceNotFoundException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage()));
 
         // Proper password verification using password encoder
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage());
+            throw new ResourceNotFoundException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage());
         }
 
         log.info("User logged in: ID={}, Phone={}", user.getId(), dto.getPhoneNumber());
@@ -79,7 +60,7 @@ public class UserService {
 
     public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new BadCredentialsException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
 
         // Use helper method for validation
         validateUserUniqueness(dto.getEmail(), dto.getPhoneNumber(), user);
@@ -115,7 +96,7 @@ public class UserService {
 
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new BadCredentialsException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
 
         userRepository.delete(user);
         log.info("User deleted: ID={}, phoneNumber={}", user.getId(), user.getPhoneNumber());
@@ -130,12 +111,19 @@ public class UserService {
     public UserResponseDTO getUserById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::toUserResponseDTO)
-                .orElseThrow(() -> new BadCredentialsException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE.getMessage() + id));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE.getMessage() + id));
     }
-//
-//    public UserResponseDTO getUserByEmailOrPhone(String email, String phone) {
-//        return userRepository.findByEmailOrPhoneNumber(email, phone)
-//                .map(userMapper::toUserResponseDTO)
-//                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE.getMessage()));
-//    }
+
+
+    private void validateUserUniqueness(String email, String phoneNumber, User existingUser) {
+        if (email != null && (existingUser == null || !email.equals(existingUser.getEmail()))
+                && userRepository.existsByEmail(email)) {
+            throw new DuplicateResourceException(EMAIL_ALREADY_IN_USE.getMessage());
+        }
+
+        if (phoneNumber != null && (existingUser == null || !phoneNumber.equals(existingUser.getPhoneNumber()))
+                && userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new DuplicateResourceException(PHONE_NUMBER_ALREADY_IN_USE.getMessage());
+        }
+    }
 }

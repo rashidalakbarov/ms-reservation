@@ -3,7 +3,7 @@ package com.barber.reservation.service;
 import com.barber.reservation.domain.Barber;
 import com.barber.reservation.dto.request.BarberRequestDTO;
 import com.barber.reservation.dto.response.BarberResponseDTO;
-import com.barber.reservation.exception.BadCredentialsException;
+import com.barber.reservation.exception.ResourceNotFoundException;
 import com.barber.reservation.mapper.BarberMapper;
 import com.barber.reservation.repository.BarberRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class BarberService {
 
     public BarberResponseDTO getBarberById(Long id) {
         return barberMapper.toBarberResponseDTO(barberRepository.findById(id)
-                .orElseThrow(() -> new BadCredentialsException(BARBER_NOT_FOUND.getMessage() + id)));
+                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage() + id)));
 
     }
 
@@ -37,12 +37,16 @@ public class BarberService {
 
     public BarberResponseDTO updateBarber(Long id, BarberRequestDTO dto) {
         Barber barber = barberRepository.findById(id)
-                .orElseThrow(() -> new BadCredentialsException(BARBER_NOT_FOUND.getMessage() + id));
+                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage() + id));
         barberMapper.updateBarberFromDTO(dto, barber);
         return barberMapper.toBarberResponseDTO(barberRepository.save(barber));
     }
 
     public void deleteBarber(Long id) {
-        barberRepository.deleteById(id);
+        Barber barber = barberRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage() + id));
+
+        barberRepository.delete(barber);
+
     }
 }

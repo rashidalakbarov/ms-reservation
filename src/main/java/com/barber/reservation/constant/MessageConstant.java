@@ -15,7 +15,8 @@ public enum MessageConstant {
     USER_DELETED_SUCCESSFULLY("User deleted successfully"),
     INVALID_PHONE_NUMBER_OR_PASSWORD("Invalid phone number or password"),
     RESERVATION_NOT_FOUND("Reservation not found with ID: "),
-    BARBER_NOT_FOUND("Barber not found");
+    BARBER_NOT_FOUND("Barber not found"),
+    BARBER_ALREADY_BOOKED("Barber is already booked at the given time range.");
 
     private final String message;
 

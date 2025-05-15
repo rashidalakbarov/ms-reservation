@@ -6,6 +6,7 @@ import com.barber.reservation.dto.response.ReservationResponseDTO;
 import com.barber.reservation.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ReservationResponseDTO create(@Valid @RequestBody ReservationRequestDTO dto) {
+    public ReservationResponseDTO create(@Valid @RequestBody ReservationRequestDTO dto) throws BadRequestException {
         return reservationService.create(dto);
     }
 

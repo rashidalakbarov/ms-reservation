@@ -1,5 +1,6 @@
 package com.barber.reservation.domain;
 
+import com.barber.reservation.domain.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -20,6 +21,10 @@ public class User {
     private Long id;
 
     private String username;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role = UserRole.CUSTOMER;
 
     private String profileImageUrl;
 

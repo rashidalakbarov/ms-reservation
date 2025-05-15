@@ -1,6 +1,7 @@
 package com.barber.reservation.dto.response;
 
 import lombok.Data;
+import java.util.List;
 
 @Data
 public class BarberResponseDTO {
@@ -12,4 +13,5 @@ public class BarberResponseDTO {
     private String profileImageUrl;
     private String description;
     private Boolean isAvailable;
+    private List<ReservationResponseDTO> reservations;
 }

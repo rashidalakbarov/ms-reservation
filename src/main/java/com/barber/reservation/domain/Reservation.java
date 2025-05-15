@@ -3,8 +3,8 @@ package com.barber.reservation.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Index;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -25,12 +25,14 @@ public class Reservation {
     //todo barber
     @ManyToOne
     @JoinColumn(name = "barber_id", nullable = false)
-    @Index(name = "idx_barber_id")
     private Barber barber;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
     private String serviceName;
-    private double price;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
+
 }

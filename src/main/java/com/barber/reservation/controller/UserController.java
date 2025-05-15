@@ -48,11 +48,4 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-//    @GetMapping("/by-contact")
-//    public UserResponseDTO getUserByEmailOrPhone(
-//            @RequestParam(required = false) String email,
-//            @RequestParam(required = false) String phone
-//    ) {
-//        return userService.getUserByEmailOrPhone(email, phone);
-//    }
 }
