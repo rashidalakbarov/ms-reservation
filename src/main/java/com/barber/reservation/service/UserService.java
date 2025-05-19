@@ -6,63 +6,55 @@ import com.barber.reservation.dto.request.UserRequestDTO;
 import com.barber.reservation.dto.response.UserResponseDTO;
 import com.barber.reservation.exception.DuplicateResourceException;
 import com.barber.reservation.exception.ResourceNotFoundException;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import com.barber.reservation.mapper.UserMapper;
 import com.barber.reservation.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-import static com.barber.reservation.constant.MessageConstant.EMAIL_ALREADY_IN_USE;
-import static com.barber.reservation.constant.MessageConstant.INVALID_PHONE_NUMBER_OR_PASSWORD;
-import static com.barber.reservation.constant.MessageConstant.PHONE_NUMBER_ALREADY_IN_USE;
-import static com.barber.reservation.constant.MessageConstant.USER_NOT_FOUND_WITH_EMAIL_OR_PHONE;
-import static com.barber.reservation.constant.MessageConstant.USER_NOT_FOUND_WITH_ID;
+import static com.barber.reservation.constant.MessageConstant.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@CacheConfig(cacheNames = "users")
 public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponseDTO createUser(UserRequestDTO dto) {
-        // Use helper method for validation
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public UserResponseDTO singUp(UserRequestDTO dto) {
         validateUserUniqueness(dto.getEmail(), dto.getPhoneNumber(), null);
 
         User user = userMapper.toEntity(dto);
-        // Encode password for security
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        User savedUser = userRepository.save(user);
-        log.info("User created: ID={}, Phone={}", savedUser.getId(), savedUser.getPhoneNumber());
-        return userMapper.toUserResponseDTO(savedUser);
+        User saved = userRepository.save(user);
+        log.info("User created: ID={}, Phone={}", saved.getId(), saved.getPhoneNumber());
+        return userMapper.toUserResponseDTO(saved);
     }
 
-    public UserResponseDTO loginUser(LoginRequestDTO dto) {
-        User user = userRepository.findByPhoneNumber(dto.getPhoneNumber())
-                .orElseThrow(() -> new ResourceNotFoundException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage()));
 
-        // Proper password verification using password encoder
+    public UserResponseDTO singIn(LoginRequestDTO dto) {
+        User user = userRepository.findByPhoneNumber(dto.getPhoneNumber())
+                .orElseThrow(() -> new BadCredentialsException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage()));
+
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new ResourceNotFoundException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage());
+            throw new BadCredentialsException(INVALID_PHONE_NUMBER_OR_PASSWORD.getMessage());
         }
 
         log.info("User logged in: ID={}, Phone={}", user.getId(), dto.getPhoneNumber());
         return userMapper.toUserResponseDTO(user);
     }
 
-    public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
-
-        // Use helper method for validation
+    @Transactional
+    public UserResponseDTO updateProfile(Long id, UserRequestDTO dto) {
+        User user = findUserOrThrow(id);
         validateUserUniqueness(dto.getEmail(), dto.getPhoneNumber(), user);
 
         boolean isModified = false;
@@ -71,57 +63,55 @@ public class UserService {
             user.setUsername(dto.getUsername());
             isModified = true;
         }
-
         if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
             user.setEmail(dto.getEmail());
             isModified = true;
         }
-
         if (dto.getPhoneNumber() != null && !dto.getPhoneNumber().equals(user.getPhoneNumber())) {
             user.setPhoneNumber(dto.getPhoneNumber());
             isModified = true;
         }
-
-        if (dto.getPassword() != null) {
+        if (dto.getPassword() != null && !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
             isModified = true;
         }
 
-        // Only save if something changed
         User updated = isModified ? userRepository.save(user) : user;
         log.info("User updated: ID={}, Email={}", updated.getId(), updated.getEmail());
-
         return userMapper.toUserResponseDTO(updated);
     }
 
-    public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID.getMessage() + id));
-
+    @Transactional
+    public void delete(Long id) {
+        User user = findUserOrThrow(id);
         userRepository.delete(user);
-        log.info("User deleted: ID={}, phoneNumber={}", user.getId(), user.getPhoneNumber());
+        log.info("User deleted: ID={}, Phone={}", user.getId(), user.getPhoneNumber());
     }
 
-    public List<UserResponseDTO> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toUserResponseDTO)
-                .toList();
-    }
+    /* ——— Köməkçi metodlar ——— */
 
-    public UserResponseDTO getUserById(Long id) {
+    /**
+     * ID-yə görə User axtarır, tapılmadıqda ResourceNotFoundException atır.
+     */
+    private User findUserOrThrow(Long id) {
         return userRepository.findById(id)
-                .map(userMapper::toUserResponseDTO)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL_OR_PHONE.getMessage() + id));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID.getMessage() + id)
+                );
     }
 
-
+    /**
+     * Email və telefon nömrəsinin unikallığını yoxlayır.
+     */
     private void validateUserUniqueness(String email, String phoneNumber, User existingUser) {
-        if (email != null && (existingUser == null || !email.equals(existingUser.getEmail()))
+        if (email != null
+                && (existingUser == null || !email.equals(existingUser.getEmail()))
                 && userRepository.existsByEmail(email)) {
             throw new DuplicateResourceException(EMAIL_ALREADY_IN_USE.getMessage());
         }
 
-        if (phoneNumber != null && (existingUser == null || !phoneNumber.equals(existingUser.getPhoneNumber()))
+        if (phoneNumber != null
+                && (existingUser == null || !phoneNumber.equals(existingUser.getPhoneNumber()))
                 && userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new DuplicateResourceException(PHONE_NUMBER_ALREADY_IN_USE.getMessage());
         }

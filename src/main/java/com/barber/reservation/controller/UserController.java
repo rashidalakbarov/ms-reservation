@@ -8,44 +8,31 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    public UserResponseDTO register(@Valid @RequestBody UserRequestDTO dto) {
-        return userService.createUser(dto);
+    @PostMapping("/sign-up")
+    public UserResponseDTO singUp(@Valid @RequestBody UserRequestDTO dto) {
+        return userService.singUp(dto);
     }
 
-    @PostMapping("/login")
-    public UserResponseDTO login(@Valid @RequestBody LoginRequestDTO dto) {
-        return userService.loginUser(dto);
+    @PostMapping("/sing-in")
+    public UserResponseDTO singIn(@Valid @RequestBody LoginRequestDTO dto) {
+        return userService.singIn(dto);
     }
 
     @PutMapping("/{id}")
-    public UserResponseDTO updateUser(@PathVariable Long id,
-                                      @Valid @RequestBody UserRequestDTO dto) {
-        return userService.updateUser(id, dto);
+    public UserResponseDTO updateProfile(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
+        return userService.updateProfile(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-    }
-
-    @GetMapping
-    public List<UserResponseDTO> getAllUsers() {
-        return userService.getAllUsers();
-    }
-
-    @GetMapping("/{id}")
-    public UserResponseDTO getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    public void deleteAccount(@PathVariable Long id) {
+        userService.delete(id);
     }
 
 }
