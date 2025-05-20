@@ -23,14 +23,14 @@ public class SecurityConfig {
 
     // Endpoint-lər üçün icazələr daha dəqiq təyin edilir
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/users/**",// User qeydiyyatı, login və s.
             "/v3/api-docs/**",      // Swagger UI
             "/swagger-ui/**",       // Swagger UI
             "/swagger-ui.html",     // Swagger UI
             "/swagger-resources/**",// Swagger UI
             "/webjars/**",          // Swagger UI
+            "/api/v1/users/**",// User qeydiyyatı, login və s.
             "/admin/reservations/**",
-            "/admin/barber/**"          // Admin paneli edit
+            "/api/v1/admin/barbers/**"          // Admin paneli edit
     };
 
     @Bean
