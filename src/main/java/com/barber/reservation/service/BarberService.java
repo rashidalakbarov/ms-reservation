@@ -25,8 +25,9 @@ public class BarberService {
     }
 
     public BarberResponseDTO getBarberById(Long id) {
-        return barberMapper.toBarberResponseDTO(barberRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage() + id)));
+        return barberMapper.toBarberResponseDTO(barberRepository.findById(id).
+                orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage()
+                        + id)));
 
     }
 
@@ -37,14 +38,16 @@ public class BarberService {
 
     public BarberResponseDTO updateBarber(Long id, BarberRequestDTO dto) {
         Barber barber = barberRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage() + id));
+                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage()
+                        + id));
         barberMapper.updateBarberFromDTO(dto, barber);
         return barberMapper.toBarberResponseDTO(barberRepository.save(barber));
     }
 
     public void deleteBarber(Long id) {
         Barber barber = barberRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage() + id));
+                .orElseThrow(() -> new ResourceNotFoundException(BARBER_NOT_FOUND.getMessage()
+                        + id));
 
         barberRepository.delete(barber);
 

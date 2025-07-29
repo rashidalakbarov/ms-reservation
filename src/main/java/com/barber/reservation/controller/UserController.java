@@ -6,7 +6,13 @@ import com.barber.reservation.dto.response.UserResponseDTO;
 import com.barber.reservation.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -34,5 +40,13 @@ public class UserController {
     public void deleteAccount(@PathVariable Long id) {
         userService.delete(id);
     }
+
+//    //todo complete method user profile image
+//    @PostMapping("/{id}/upload-image")
+//    public void uploadProfileImage(@PathVariable Long id,
+//                                   @RequestParam("file") MultipartFile file) {
+//
+//        userService.uploadProfileImage(id, file);
+//    }
 
 }

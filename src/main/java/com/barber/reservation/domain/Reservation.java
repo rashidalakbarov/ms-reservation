@@ -1,5 +1,6 @@
 package com.barber.reservation.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +28,10 @@ public class Reservation {
     @JoinColumn(name = "barber_id", nullable = false)
     private Barber barber;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime startTime;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime endTime;
 
     private String serviceName;

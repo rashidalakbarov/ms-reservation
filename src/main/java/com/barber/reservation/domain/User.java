@@ -23,7 +23,10 @@ public class User {
     @Column(nullable = false)
     private UserRole role = UserRole.CUSTOMER;
 
-    private String profileImageUrl;
+//    private String imageName;
+//    private String imageType;
+// @Lob
+//    private byte[] imageData;
 
     @Email
     @Column(unique = true)

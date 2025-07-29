@@ -15,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.barber.reservation.constant.MessageConstant.*;
 
@@ -71,15 +74,37 @@ public class UserService {
             user.setPhoneNumber(dto.getPhoneNumber());
             isModified = true;
         }
-        if (dto.getPassword() != null && !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+        if (dto.getPassword() != null) {
+            if (passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+                throw new DuplicateResourceException("The new password cannot be the same as the current password.");
+            }
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
             isModified = true;
         }
 
-        User updated = isModified ? userRepository.save(user) : user;
+        if (!isModified) {
+            throw new IllegalArgumentException("No changes were made to the profile.");
+        }
+
+        User updated = userRepository.save(user);
         log.info("User updated: ID={}, Email={}", updated.getId(), updated.getEmail());
         return userMapper.toUserResponseDTO(updated);
     }
+
+//    @Transactional
+//    public void uploadProfileImage(Long userId, MultipartFile file) {
+//        User user = findUserOrThrow(userId);
+//
+//        try {
+//            user.setImageName(file.getOriginalFilename());
+//            user.setImageType(file.getContentType());
+//            user.setImageData(file.getBytes());
+//
+//            userRepository.save(user);
+//        } catch (IOException e) {
+//            throw new RuntimeException("Failed to upload image", e);
+//        }
+//    }
 
     @Transactional
     public void delete(Long id) {
@@ -88,11 +113,6 @@ public class UserService {
         log.info("User deleted: ID={}, Phone={}", user.getId(), user.getPhoneNumber());
     }
 
-    /* ——— Köməkçi metodlar ——— */
-
-    /**
-     * ID-yə görə User axtarır, tapılmadıqda ResourceNotFoundException atır.
-     */
     private User findUserOrThrow(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() ->
@@ -100,9 +120,6 @@ public class UserService {
                 );
     }
 
-    /**
-     * Email və telefon nömrəsinin unikallığını yoxlayır.
-     */
     private void validateUserUniqueness(String email, String phoneNumber, User existingUser) {
         if (email != null
                 && (existingUser == null || !email.equals(existingUser.getEmail()))
