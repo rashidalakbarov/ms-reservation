@@ -41,12 +41,4 @@ public class UserController {
         userService.delete(id);
     }
 
-//    //todo complete method user profile image
-//    @PostMapping("/{id}/upload-image")
-//    public void uploadProfileImage(@PathVariable Long id,
-//                                   @RequestParam("file") MultipartFile file) {
-//
-//        userService.uploadProfileImage(id, file);
-//    }
-
 }

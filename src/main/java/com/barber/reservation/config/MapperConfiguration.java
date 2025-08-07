@@ -1,7 +1,5 @@
 package com.barber.reservation.config;
 
-import com.barber.reservation.mapper.BarberMapper;
-import com.barber.reservation.mapper.ReservationMapper;
 import com.barber.reservation.mapper.UserMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -15,9 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 import static com.barber.reservation.constant.MessageConstant.*;
 
@@ -90,21 +87,6 @@ public class UserService {
         log.info("User updated: ID={}, Email={}", updated.getId(), updated.getEmail());
         return userMapper.toUserResponseDTO(updated);
     }
-
-//    @Transactional
-//    public void uploadProfileImage(Long userId, MultipartFile file) {
-//        User user = findUserOrThrow(userId);
-//
-//        try {
-//            user.setImageName(file.getOriginalFilename());
-//            user.setImageType(file.getContentType());
-//            user.setImageData(file.getBytes());
-//
-//            userRepository.save(user);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Failed to upload image", e);
-//        }
-//    }
 
     @Transactional
     public void delete(Long id) {
